@@ -28,17 +28,13 @@ function isLocalIP(ip) {
 // ROTA ÚNICA DE ANUNCIO
 app.post('/api/announce', apiLimiter, (req, res) => {
     const { port, name, desc, players, ping } = req.body;
-
+    console.log("Recebi:", req.body);
+    
     if (!port || !name) {
         return res.status(400).json({ error: "Dados incompletos." });
     }
 
-    // Captura o IP corretamente após o trust proxy
     let publicIp = req.ip; 
-
-    if (isLocalIP(publicIp)) {
-        return res.status(400).json({ error: "IP local não permitido." });
-    }
 
     const serverId = `${publicIp}:${port}`;
     const now = Date.now();
@@ -66,6 +62,14 @@ app.get('/api/servers', (req, res) => {
     // Remove servidores inativos automaticamente
     serverList = serverList.filter(srv => (now - srv.lastSeen) < SERVER_TIMEOUT);
     res.json(serverList);
+});
+
+app.use((req, res, next) => {
+    if (req.path === '/api/announce') {
+        console.log("Headers recebidos:", req.headers['content-type']);
+        console.log("Body bruto recebido:", req.body);
+    }
+    next();
 });
 
 app.listen(PORT, () => console.log(`Rodando na porta ${PORT}`));
