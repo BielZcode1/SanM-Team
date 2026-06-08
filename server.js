@@ -16,7 +16,18 @@ const apiLimiter = rateLimit({
 });
 
 // Aplica o limitador nas rotas críticas
-app.use('/api/announce', apiLimiter);
+app.post('/api/announce', (req, res) => {
+    // 'x-forwarded-for' contém a cadeia de IPs. O primeiro é o original.
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip = forwarded ? forwarded.split(',')[0] : req.socket.remoteAddress;
+
+    const serverData = req.body;
+    serverData.ip = ip; // Agora você salva o IP real aqui
+    serverData.status = "Online";
+    
+    // Salve serverData no seu banco de dados ou array de servidores
+    res.status(200).send("OK");
+});
 
 let serverList = [];
 const SERVER_TIMEOUT = 60 * 1000;
