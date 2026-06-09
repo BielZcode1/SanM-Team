@@ -57,6 +57,16 @@ app.post('/api/announce', apiLimiter, (req, res) => {
     res.status(200).json({ message: "OK" });
 });
 
+app.post('/api/log', (req, res) => {
+    const { sender, message, level } = req.body;
+    const timestamp = new Date().toISOString();
+    
+    // Aqui você pode salvar em um arquivo ou apenas exibir no console do servidor
+    console.log(`[${timestamp}] [${level}] ${sender}: ${message}`);
+    
+    res.status(200).json({ status: "Log recebido" });
+});
+
 app.get('/api/servers', (req, res) => {
     const now = Date.now();
     // Remove servidores inativos automaticamente
